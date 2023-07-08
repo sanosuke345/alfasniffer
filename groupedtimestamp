@@ -1,0 +1,29 @@
+from collections import defaultdict
+
+# Read the data from the "probes.txt" file
+with open("probes.txt", "r") as file:
+    data = file.readlines()
+
+# Create a defaultdict to store the SSID and MAC address for each unique hour and minute
+networks = defaultdict(lambda: {"ssid_mac": set()})
+
+# Process each line of the data
+for line in data:
+    parts = line.split(" ")
+    timestamp = parts[0]
+    signal_strength = parts[1]
+    mac_address = parts[2]
+    ssid = " ".join(parts[3:]).strip("\"")
+
+    # Extract the hour and minute from the timestamp
+    hour, minute, _ = timestamp.split(":")
+
+    # Add the SSID and MAC address to the set for the given hour and minute
+    networks[(hour, minute)]["ssid_mac"].add((ssid, mac_address))
+
+# Generate the output and write it to the "output.txt" file
+with open("output.txt", "w") as file:
+    for (hour, minute), network_data in networks.items():
+        ssid_mac_list = ", ".join([f"SSID: {ssid}, MAC: {mac}" for ssid, mac in network_data["ssid_mac"]])
+        output_line = f"Timestamp: {hour}:{minute}, {ssid_mac_list}\n"
+        file.write(output_line)
